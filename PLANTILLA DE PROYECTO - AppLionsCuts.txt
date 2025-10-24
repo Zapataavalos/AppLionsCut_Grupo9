@@ -1,0 +1,2335 @@
+////////////////////////////////////////////////////////////////
+// PLANTILLA DE PROYECTO - AppLionsCuts
+////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////
+// 1. build.gradle.kts (o build.gradle) (Nivel de app)
+// (Archivo: app/build.gradle.kts)
+////////////////////////////////////////////////////////////////
+
+// Pega aquí el contenido de tu build.gradle.kts (el del módulo app)
+dependencies {
+    // dependencies {
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Jetpack Compose
+    implementation("androidx.compose.ui:ui:1.6.8") // O la versión que uses
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.6.8")
+    implementation("androidx.activity:activity-compose:1.9.0")
+
+
+
+    val composeBom = platform("androidx.compose:compose-bom:2024.05.00")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
+    implementation(platform("androidx.compose:compose-bom:2024.09.00"))
+
+
+// UI (Para Column, Row, Modifiers, etc.)
+    implementation("androidx.compose.ui:ui")
+
+// Herramientas de UI (Para @Preview)
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+
+// Activity (Para que setContent funcione en MainActivity)
+    implementation("androidx.activity:activity-compose:1.9.0")
+
+// ViewModel (Para usar ViewModels en Compose)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2") // Para el 'viewModel()'
+
+// LiveData (Para usar .observeAsState() con LiveData)
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.2")
+    implementation("androidx.compose.runtime:runtime-livedata")
+
+// Navigation (Para NavHost, etc.)
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // ... (tus otras dependencias como material3, ui, etc.)
+    implementation("androidx.core:core-ktx:1.13.1") // (Es bueno tener esta)
+
+// --- AÑADE ESTA LÍNEA ---
+    implementation("androidx.annotation:annotation:1.8.0")
+// --- FIN DE LA LÍNEA ---
+
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
+// ... (el resto de tus dependencias)
+
+    implementation("androidx.compose.material:material-icons-extended")
+}
+}
+
+
+////////////////////////////////////////////////////////////////
+// 2. MainActivity.kt
+// (Archivo: com/example/applionscuts/MainActivity.kt)
+////////////////////////////////////////////////////////////////
+
+// Pega aquí el código de tu MainActivity.kt
+package com.example.applionscuts
+// package com.example.applionscuts
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import com.example.applionscuts.navigation.AppNavigation
+import com.example.applionscuts.ui.theme.AppLionsCutsTheme
+import com.example.applionscuts.viewmodel.AuthViewModel
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            AppLionsCutsTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    val authViewModel: AuthViewModel = viewModel()
+
+                    // Solo pasamos AuthViewModel
+                    AppNavigation(
+                        navController = navController,
+                        authViewModel = authViewModel
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+////////////////////////////////////////////////////////////////
+// 3. Carpeta: model
+////////////////////////////////////////////////////////////////
+
+// --- Archivo: com/example/applionscuts/model/UserRole.kt ---
+package com.example.applionscuts.model
+// package com.example.applionscuts.model
+
+enum class UserRole {
+    CLIENT,
+    BARBER
+}
+
+// --- Archivo: com/example/applionscuts/model/User.kt ---
+package com.example.applionscuts.model
+// package com.example.applionscuts.model
+
+data class User(
+    val uid: String,
+    val email: String,
+    val name: String,
+    val role: UserRole
+)
+
+// --- Archivo: com/example/applionscuts/model/Haircut.kt ---
+package com.example.applionscuts.model
+// package com.example.applionscuts.model
+
+import androidx.annotation.DrawableRes
+
+data class Haircut(
+    val id: String,
+    val name: String,
+    val description: String,
+    val longDescription: String,
+    val price: Double,
+    @DrawableRes val imageResId: Int
+)
+
+// --- Archivo: com/example/applionscuts/model/Product.kt ---
+package com.example.applionscuts.model
+// package com.example.applionscuts.model
+
+import androidx.annotation.DrawableRes
+
+data class Product(
+    val id: String,
+    val name: String,
+    val brand: String,
+    val longDescription: String,
+    val price: Double,
+    val stock: Int,
+    @DrawableRes val imageResId: Int
+)
+
+// --- Archivo: com/example/applionscuts/model/UserProfile.kt ---
+package com.example.applionscuts.model
+// package com.example.applionscuts.model
+
+// Contiene los datos básicos del usuario
+data class UserProfile(
+    val uid: String,
+    val name: String,
+    val email: String,
+    val fidelityStars: Int // Las estrellas de fidelidad
+)
+
+// --- Archivo: com/example/applionscuts/model/Appointment.kt ---
+package com.example.applionscuts.model
+// package com.example.applionscuts.model
+
+
+data class Appointment(
+    val id: String,
+    val barberName: String,
+    val service: String,
+    val date: String,
+    val time: String
+)
+
+// --- Archivo: com/example/applionscuts/model/PaymentMethod.kt ---
+package com.example.applionscuts.model
+// package com.example.applionscuts.model
+
+
+data class PaymentMethod(
+    val id: String,
+    val lastFourDigits: String,
+    val brand: String
+)
+
+// --- Archivo: com/example/applionscuts/model/Barber.kt ---
+package com.example.applionscuts.model
+// package com.example.applionscuts.model
+
+import androidx.annotation.DrawableRes
+
+data class Barber(
+    val id: String,
+    val name: String,
+    val specialty: String,
+    @DrawableRes val imageResId: Int
+)
+
+
+
+////////////////////////////////////////////////////////////////
+// 4. Carpeta: navigation
+////////////////////////////////////////////////////////////////
+
+// --- Archivo: com/example/applionscuts/navigation/Routes.kt ---
+package com.example.applionscuts.navigation
+// package com.example.applionscuts.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.example.applionscuts.ui.screen.*
+import com.example.applionscuts.viewmodel.*
+
+@Composable
+fun AppNavigation(
+    navController: NavHostController,
+    authViewModel: AuthViewModel
+) {
+    NavHost(navController = navController, startDestination = Routes.Login) {
+
+        composable(Routes.Login) {
+            LoginScreen(authViewModel = authViewModel, onLoginSuccess = { navController.navigate(Routes.Home) { popUpTo(Routes.Login) { inclusive = true } } }, onNavigateToRegister = { navController.navigate(Routes.Register) })
+        }
+
+        composable(Routes.Register) {
+            RegisterScreen(authViewModel = authViewModel, onRegisterSuccess = { navController.navigate(Routes.Home) { popUpTo(Routes.Login) { inclusive = true } } })
+        }
+
+        composable(Routes.Home) {
+            HomeScreen(
+                onNavigateToHaircuts = { navController.navigate(Routes.Haircuts) },
+                onNavigateToProducts = { navController.navigate(Routes.Products) },
+                onNavigateToProfile = { navController.navigate(Routes.Profile) },
+                onNavigateToBooking = { navController.navigate(Routes.Booking) },
+                onLogout = { authViewModel.logout(); navController.navigate(Routes.Login) { popUpTo(Routes.Home) { inclusive = true } } }
+            )
+        }
+
+        composable(Routes.Haircuts) {
+            val haircutViewModel: HaircutViewModel = viewModel()
+            HaircutsScreen(viewModel = haircutViewModel, onBack = { navController.popBackStack() })
+        }
+
+        composable(Routes.Products) {
+            val productViewModel: ProductViewModel = viewModel() // Creado aquí
+            ProductsScreen(viewModel = productViewModel, onBack = { navController.popBackStack() })
+        }
+
+        composable(Routes.Profile) {
+            val profileViewModel: ProfileViewModel = viewModel()
+            ProfileScreen(viewModel = profileViewModel, onBack = { navController.popBackStack() })
+        }
+
+        composable(Routes.Booking) {
+            val bookingViewModel: BookingViewModel = viewModel()
+            BookingScreen(viewModel = bookingViewModel, onBack = { navController.popBackStack() })
+        }
+    }
+}
+
+// --- Archivo: com/example/applionscuts/navigation/AppNavigation.kt ---
+package com.example.applionscuts.navigation
+// package com.example.applionscuts.navigation
+
+object Routes {
+    const val Login = "login"
+    const val Register = "register"
+    const val Home = "home"
+    const val Haircuts = "haircuts"
+    const val Products = "products"
+    const val Profile = "profile"
+
+    const val Booking = "booking" // <-- AÑADIR ESTA LÍNEA
+}
+
+
+////////////////////////////////////////////////////////////////
+// 5. Carpeta: viewmodel
+////////////////////////////////////////////////////////////////
+
+// --- Archivo: com/example/applionscuts/viewmodel/AuthViewModel.kt ---
+package com.example.applionscuts.viewmodel
+// package com.example.applionscuts.viewmodel
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.applionscuts.domain.validation.Validators
+import com.example.applionscuts.model.UserRole
+
+class AuthViewModel : ViewModel() {
+    private val validators = Validators()
+    private val _isLoggedIn = MutableLiveData<Boolean>()
+    val isLoggedIn: LiveData<Boolean> = _isLoggedIn
+    private val _registrationSuccess = MutableLiveData<Boolean>()
+    val registrationSuccess: LiveData<Boolean> = _registrationSuccess
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    fun login(email: String, pass: String) {
+        _errorMessage.value = null
+        if (!validators.isValidEmail(email)) { _errorMessage.value = "Email no válido"; return }
+        if (pass.isEmpty()) { _errorMessage.value = "Ingresa tu contraseña"; return }
+        _isLoggedIn.value = true // Simulación
+    }
+
+    fun register(name: String, email: String, pass: String, confirmPass: String, role: UserRole, barberSpecificData: String?) {
+        _errorMessage.value = null
+        if (name.isEmpty()) { _errorMessage.value = "El campo 'Nombre' no puede estar vacío"; return }
+        if (!validators.isValidEmail(email)) { _errorMessage.value = "El formato del email no es válido"; return }
+        if (!validators.isValidPassword(pass)) { _errorMessage.value = "La contraseña debe tener al menos 6 caracteres"; return }
+        if (pass != confirmPass) { _errorMessage.value = "Las contraseñas no coinciden"; return }
+        println("Registrando usuario: $name con rol $role")
+        if (role == UserRole.BARBER) { println("Datos de barbero: $barberSpecificData") }
+        _registrationSuccess.value = true // Simulación
+    }
+
+    fun logout() { _isLoggedIn.value = false }
+}
+
+// --- Archivo: com/example/applionscuts/viewmodel/HaircutViewModel.kt ---
+package com.example.applionscuts.viewmodel
+// package com.example.applionscuts.viewmodel
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import com.example.applionscuts.R
+import com.example.applionscuts.model.Haircut
+
+class HaircutViewModel : ViewModel() {
+
+    // Este LiveData guarda el corte que el usuario quiere ver en detalle
+    private val _selectedHaircut = MutableLiveData<Haircut?>(null)
+    val selectedHaircut: LiveData<Haircut?> = _selectedHaircut
+
+    // Función llamada por la Vista cuando se presiona "Ver más"
+    fun onHaircutSelected(haircut: Haircut) {
+        _selectedHaircut.value = haircut
+    }
+
+    // Función llamada por la Vista para cerrar el diálogo
+    fun onDialogDismiss() {
+        _selectedHaircut.value = null
+    }
+
+    // --- FIN LÓGICA DEL DIÁLOGO ---
+
+
+    // Carga los 8 cortes
+    val haircuts = liveData {
+        val list = listOf(
+            Haircut(
+                id = "1",
+                name = "Buzz Cut",
+                description = "Corte militar clásico.",
+                longDescription = "El Buzz Cut es un corte simple y de bajo mantenimiento, realizado completamente a máquina. Ideal para un look limpio y fresco en cualquier temporada.",
+                price = 12.000,
+                imageResId = R.drawable.buzzcut
+            ),
+            Haircut(
+                id = "2",
+                name = "Mid Fade",
+                description = "Desvanecido medio.",
+                longDescription = "El Mid Fade (desvanecido medio) ofrece un balance perfecto entre un look conservador y moderno. El degradado comienza a mitad de la cabeza.",
+                price = 13.000,
+                imageResId = R.drawable.midfade
+            ),
+            Haircut(
+                id = "3",
+                name = "Burst Fade",
+                description = "Desvanecido explosivo.",
+                longDescription = "Perfecto para estilos como el mohicano o el 'mullet' moderno. El Burst Fade se concentra alrededor de la oreja, creando un efecto semicircular.",
+                price = 13.000,
+                imageResId = R.drawable.burstfade
+            ),
+            Haircut(
+                id = "4",
+                name = "Taper Fade",
+                description = "Degradado en patillas.",
+                longDescription = "Un corte sutil y elegante. A diferencia del fade, el 'taper' solo degrada las patillas y la nuca, manteniendo más longitud en los lados.",
+                price = 13.000,
+                imageResId = R.drawable.taper_fade
+            ),
+            Haircut(
+                id = "5",
+                name = "Mullet Moderno",
+                description = "Corto adelante, largo atrás.",
+                longDescription = "El clásico de los 80 reinventado. Se combina con un fade en los lados para un look atrevido y lleno de textura.",
+                price = 17.000,
+                imageResId = R.drawable.mullet
+            ),
+            Haircut(
+                id = "6",
+                name = "Slick Back",
+                description = "Peinado hacia atrás.",
+                longDescription = "Un look atemporal que requiere longitud en la parte superior. Se peina todo hacia atrás, usualmente con un producto de fijación media o alta.",
+                price = 13.000,
+                imageResId = R.drawable.slick_back
+            ),
+            Haircut(
+                id = "7",
+                name = "Quiff Texturizado",
+                description = "Flequillo con volumen.",
+                longDescription = "El Quiff consiste en un flequillo voluminoso peinado hacia arriba y atrás. La versión texturizada le da un toque más casual y moderno.",
+                price = 13.000,
+                imageResId = R.drawable.quiff
+            ),
+            Haircut(
+                id = "8",
+                name = "Corte Clásico",
+                description = "Con tijera y peine.",
+                longDescription = "El corte tradicional. Ideal para quienes prefieren un look más conservador, realizado principalmente con tijera para un acabado natural.",
+                price = 13.000,
+                imageResId = R.drawable.corte_clasico
+            )
+        )
+        emit(list)
+    }
+}
+
+// --- Archivo: com/example/applionscuts/viewmodel/ProductViewModel.kt ---
+package com.example.applionscuts.viewmodel
+// package com.example.applionscuts.viewmodel
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.applionscuts.R
+import com.example.applionscuts.model.Product
+
+class ProductViewModel : ViewModel() {
+
+    // --- LÓGICA DEL DIÁLOGO "VER MÁS" ---
+    // (Ahora guarda solo el ID, para evitar datos "viejos" de stock)
+    private val _selectedProductId = MutableLiveData<String?>(null)
+    val selectedProductId: LiveData<String?> = _selectedProductId
+
+    // --- LÓGICA DE LA LISTA DE PRODUCTOS (AHORA MUTABLE) ---
+    private val _products = MutableLiveData<List<Product>>()
+    val products: LiveData<List<Product>> = _products
+
+    // --- LÓGICA DEL CARRITO ---
+    private val _toastMessage = MutableLiveData<String?>(null)
+    val toastMessage: LiveData<String?> = _toastMessage
+
+    init {
+        loadProducts() // Carga la lista inicial al crear el ViewModel
+    }
+
+    private fun loadProducts() {
+        // Tu lista de 10 productos, ahora con 'stock = 30'
+        val list = listOf(
+            Product(
+                id = "p1",
+                name = "Polvo Texturizador",
+                brand = "Lions Basics",
+                longDescription = "Añade volumen y textura mate al instante. Ideal para peinados casuales y desestructurados. Aplicar sobre cabello seco para un máximo efecto.",
+                price = 18000.0,
+                stock = 30,
+                imageResId = R.drawable.polvo
+            ),
+            Product(
+                id = "p2",
+                name = "Cera Moldeadora",
+                brand = "Lions Style",
+                longDescription = "Fijación media-alta con un acabado de brillo sutil. Perfecta para definir peinados clásicos o modernos sin dejar residuos. Se elimina fácilmente con agua.",
+                price = 22000.0,
+                stock = 30,
+                imageResId = R.drawable.cera
+            ),
+            Product(
+                id = "p3",
+                name = "Shampoo Anticaída",
+                brand = "Lions Care",
+                longDescription = "Formulado con extractos naturales y biotina para fortalecer el folículo piloso, reducir la caída y promover un cuero cabelludo saludable. Uso diario.",
+                price = 27000.0,
+                stock = 30,
+                imageResId = R.drawable.shampoo
+            ),
+            Product(
+                id = "p4",
+                name = "Aceite para Barba",
+                brand = "Lions Beard",
+                longDescription = "Hidrata y suaviza la barba, previniendo la picazón y la resequedad. Con aroma a sándalo y bergamota.",
+                price = 25000.0,
+                stock = 30,
+                imageResId = R.drawable.aceite_barba // <-- CAMBIA ESTA IMAGEN
+            ),
+            Product(
+                id = "p5",
+                name = "Peine de Madera",
+                brand = "Lions Tools",
+                longDescription = "Peine de madera de sándalo antiestático. Ideal para desenredar la barba y el cabello sin causar frizz.",
+                price = 15000.0,
+                stock = 30,
+                imageResId = R.drawable.peine_madera // <-- CAMBIA ESTA IMAGEN
+            ),
+            Product(
+                id = "p6",
+                name = "Tónico Crecimiento",
+                brand = "Lions Boost",
+                longDescription = "Fórmula avanzada con Minoxidil al 5% y Biotina, diseñada para estimular el crecimiento del cabello y la barba.",
+                price = 45000.0,
+                stock = 30,
+                imageResId = R.drawable.tonico // <-- CAMBIA ESTA IMAGEN
+            ),
+            Product(
+                id = "p7",
+                name = "Aftershave Bálsamo",
+                brand = "Lions Care",
+                longDescription = "Calma e hidrata la piel instantáneamente después del afeitado. Fórmula sin alcohol con aloe vera y manzanilla.",
+                price = 23000.0,
+                stock = 30,
+                imageResId = R.drawable.aftershave
+            ),
+            Product(
+                id = "p8",
+                name = "Navaja Clásica",
+                brand = "Lions Tools",
+                longDescription = "Navaja de afeitar clásica (Shavette) de acero inoxidable. Para un afeitado preciso y al ras. (No incluye cuchillas).",
+                price = 35000.0,
+                stock = 30,
+                imageResId = R.drawable.navaja
+            ),
+            Product(
+                id = "p9",
+                name = "Gel de Afeitar",
+                brand = "Lions Style",
+                longDescription = "Gel de afeitar transparente de alta precisión. Permite ver por dónde se afeita, ideal para perfilar barba y bigote.",
+                price = 19000.0,
+                stock = 30,
+                imageResId = R.drawable.gel
+            ),
+            Product(
+                id = "p10",
+                name = "Capa de Barbero",
+                brand = "Lions Gear",
+                longDescription = "Capa profesional de barbero con el logo de Supreme. Material ligero, impermeable y de secado rápido.",
+                price = 30000.0,
+                stock = 30,
+                imageResId = R.drawable.capa
+            )
+        )
+        _products.value = list
+    }
+
+    fun onProductSelected(product: Product) {
+        _selectedProductId.value = product.id
+    }
+
+    fun onDialogDismiss() {
+        _selectedProductId.value = null
+    }
+
+    fun onAddToCartClicked(productId: String) {
+        val currentList = _products.value ?: return
+
+        // 1. Encuentra el producto que se va a actualizar
+        val productToUpdate = currentList.find { it.id == productId } ?: return
+
+        // 2. Comprueba si hay stock
+        if (productToUpdate.stock > 0) {
+            // 3. Crea una copia del producto con el stock reducido
+            val updatedProduct = productToUpdate.copy(stock = productToUpdate.stock - 1)
+
+            // 4. Crea una *nueva lista* reemplazando el producto antiguo por el nuevo
+            val newList = currentList.map {
+                if (it.id == productId) updatedProduct else it
+            }
+
+            // 5. Actualiza el LiveData con la nueva lista (esto refresca la UI)
+            _products.value = newList
+            _toastMessage.value = "¡${updatedProduct.name} añadido al carrito!"
+        } else {
+            // Opcional: Avisar si no hay stock
+            _toastMessage.value = "¡Producto agotado!"
+        }
+    }
+
+    // Para limpiar el mensaje del Toast después de mostrarlo
+    fun onToastShown() {
+        _toastMessage.value = null
+    }
+}
+
+// --- Archivo: com/example/applionscuts/viewmodel/ProfileViewModel.kt ---
+package com.example.applionscuts.viewmodel
+// package com.example.applionscuts.viewmodel
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.applionscuts.model.Appointment
+import com.example.applionscuts.model.PaymentMethod
+import com.example.applionscuts.model.UserProfile
+
+class ProfileViewModel : ViewModel() {
+
+    // Datos del perfil del usuario
+    private val _userProfile = MutableLiveData<UserProfile>()
+    val userProfile: LiveData<UserProfile> = _userProfile
+
+    // Lista de citas
+    private val _appointments = MutableLiveData<List<Appointment>>()
+    val appointments: LiveData<List<Appointment>> = _appointments
+
+    // Lista de tarjetas
+    private val _paymentMethods = MutableLiveData<List<PaymentMethod>>()
+    val paymentMethods: LiveData<List<PaymentMethod>> = _paymentMethods
+
+    // Estado para controlar el diálogo de canje
+    private val _showRedeemDialog = MutableLiveData<Boolean>(false)
+    val showRedeemDialog: LiveData<Boolean> = _showRedeemDialog
+
+    init {
+        loadUserProfile()
+    }
+
+    private fun loadUserProfile() {
+        // --- DATOS SIMULADOS ---
+        // En una app real, esto vendría de Firebase o tu API
+
+        // Ponemos 10 estrellas para que puedas ver el diálogo de "Felicidades"
+        _userProfile.value = UserProfile("uid-123", "Lions", "lions@email.com", 10)
+
+        _appointments.value = listOf(
+            Appointment("c1", "Barbero Juan", "Mid Fade", "20/10/2025", "10:00 AM"),
+            Appointment("c2", "Barbero Pedro", "Corte Clásico", "15/09/2025", "03:00 PM"),
+            Appointment("c3", "Barbero Luis", "Buzz Cut", "01/09/2025", "12:00 PM")
+        )
+
+        _paymentMethods.value = listOf(
+            PaymentMethod("pm1", "1234", "Visa"),
+            PaymentMethod("pm2", "5678", "Mastercard")
+        )
+    }
+
+    // --- Lógica de Fidelidad ---
+
+    fun onRedeemClicked() {
+        // Solo muestra el diálogo si tiene 10 estrellas
+        if (_userProfile.value?.fidelityStars == 10) {
+            _showRedeemDialog.value = true
+        }
+    }
+
+    fun onDialogDismiss() {
+        _showRedeemDialog.value = false
+    }
+
+    fun onRedeemConfirmed(rewardType: String) {
+        // 1. Ocultar el diálogo
+        _showRedeemDialog.value = false
+
+        // 2. Lógica para canjear (llamar a la API, etc.)
+        println("Usuario canjeó: $rewardType")
+
+        // 3. Reiniciar las estrellas
+        _userProfile.value = _userProfile.value?.copy(fidelityStars = 0)
+    }
+}
+
+// --- Archivo: com/example/applionscuts/viewmodel/BookingViewModel.kt ---
+package com.example.applionscuts.viewmodel
+// package com.example.applionscuts.viewmodel
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.applionscuts.R
+import com.example.applionscuts.model.Barber
+
+class BookingViewModel : ViewModel() {
+
+    // --- Listas de Datos ---
+    private val _barbers = MutableLiveData<List<Barber>>()
+    val barbers: LiveData<List<Barber>> = _barbers
+
+    private val _availableDates = MutableLiveData<List<String>>()
+    val availableDates: LiveData<List<String>> = _availableDates
+
+    private val _availableTimes = MutableLiveData<List<String>>()
+    val availableTimes: LiveData<List<String>> = _availableTimes
+
+    // --- Estado de Selección del Usuario ---
+    private val _selectedBarber = MutableLiveData<Barber?>(null)
+    val selectedBarber: LiveData<Barber?> = _selectedBarber
+
+    private val _selectedDate = MutableLiveData<String?>(null)
+    val selectedDate: LiveData<String?> = _selectedDate
+
+    private val _selectedTime = MutableLiveData<String?>(null)
+    val selectedTime: LiveData<String?> = _selectedTime
+
+    // --- Estado de la Reserva ---
+    private val _bookingSuccess = MutableLiveData<Boolean>(false)
+    val bookingSuccess: LiveData<Boolean> = _bookingSuccess
+
+    init {
+        loadBookingData()
+    }
+
+    private fun loadBookingData() {
+        // --- Datos Simulados ---
+        _barbers.value = listOf(
+            Barber("b1", "Juan Pérez", "Especialista en Fades", R.drawable.leon),
+            Barber("b2", "Pedro Gómez", "Experto en Clásicos", R.drawable.leon),
+            Barber("b3", "Luis Martínez", "Maestro de Barbas", R.drawable.leon)
+        )
+
+        // Lunes a Viernes
+        _availableDates.value = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes")
+
+        // 09:00 AM a 21:00 PM (9:00 PM)
+        _availableTimes.value = (9..21).map { String.format("%02d:00", it) }
+    }
+
+    // --- Funciones para actualizar la selección ---
+    fun onBarberSelected(barber: Barber) {
+        _selectedBarber.value = barber
+    }
+
+    fun onDateSelected(date: String) {
+        _selectedDate.value = date
+    }
+
+    fun onTimeSelected(time: String) {
+        _selectedTime.value = time
+    }
+
+    // --- Función para confirmar ---
+    fun confirmBooking() {
+        // En una app real, enviarías esto a tu API o Firebase
+        println("CITA CONFIRMADA:")
+        println("Barbero: ${_selectedBarber.value?.name}")
+        println("Fecha: ${_selectedDate.value}")
+        println("Hora: ${_selectedTime.value}")
+
+        _bookingSuccess.value = true
+    }
+}
+
+
+////////////////////////////////////////////////////////////////
+// 6. Carpeta: ui/theme
+////////////////////////////////////////////////////////////////
+
+// --- Archivo: com/example/applionscuts/ui/theme/Color.kt ---
+package com.example.applionscuts.ui.theme
+// package com.example.applionscuts.ui.theme.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Paleta de colores de AppLionsCuts
+val LionsCutsYellow = Color(0xFFF1C40F)
+val LionsCutsBlack = Color(0xFF000000)
+val LionsCutsDarkGray = Color(0xFF1C1C1E)
+val LionsCutsLightGray = Color(0xFFCCCCCC)
+val LionsCutsWhite = Color(0xFFFFFFFF)
+
+// --- Archivo: com/example/applionscuts/ui/theme/Type.kt ---
+package com.example.applionscuts.ui.theme
+// package com.example.applionscuts.ui.theme
+
+import androidx.compose.material3.Typography
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+
+// Este es el archivo que tu Theme.kt está buscando
+val Typography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    )
+    /* Aquí puedes definir más estilos de texto si quieres, como:
+    titleLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
+        letterSpacing = 0.sp
+    )
+    */
+)
+
+// --- Archivo: com/example/applionscuts/ui/theme/Theme.kt ---
+package com.example.applionscuts.ui.theme
+// package com.example.applionscuts.ui.theme
+
+import android.app.Activity
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import com.example.applionscuts.ui.theme.theme.LionsCutsBlack
+import com.example.applionscuts.ui.theme.theme.LionsCutsDarkGray
+import com.example.applionscuts.ui.theme.theme.LionsCutsLightGray
+import com.example.applionscuts.ui.theme.theme.LionsCutsWhite
+import com.example.applionscuts.ui.theme.theme.LionsCutsYellow
+
+private val DarkColorScheme = darkColorScheme(
+    primary = LionsCutsYellow,
+    onPrimary = LionsCutsBlack,
+    secondary = LionsCutsLightGray,
+    background = LionsCutsBlack,
+    surface = LionsCutsDarkGray,
+    onBackground = LionsCutsWhite,
+    onSurface = LionsCutsWhite
+)
+
+private val LightColorScheme = lightColorScheme(
+    primary = LionsCutsYellow,
+    onPrimary = LionsCutsBlack,
+    secondary = LionsCutsDarkGray,
+    background = LionsCutsWhite,
+    surface = LionsCutsWhite,
+    onBackground = LionsCutsBlack,
+    onSurface = LionsCutsBlack
+)
+
+@Composable
+fun AppLionsCutsTheme(
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    val darkTheme: Boolean = isSystemInDarkTheme()
+
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+
+        // --- AQUÍ ESTÁ EL CAMBIO ---
+        SideEffect {
+            val window = (view.context as Activity).window
+
+            // 1. Forzamos el color de la barra de estado a NEGRO
+            window.statusBarColor = LionsCutsBlack.toArgb()
+
+            // 2. Forzamos los iconos (hora, batería) a ser CLAROS (blancos)
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+        }
+        // --- FIN DEL CAMBIO ---
+    }
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography, // Tu archivo Type.kt
+        content = content
+    )
+}
+
+
+////////////////////////////////////////////////////////////////
+// 7. Carpeta: ui/components
+////////////////////////////////////////////////////////////////
+
+// --- Archivo: com/example/applionscuts/ui/components/AppTopBar.kt ---
+package com.example.applionscuts.ui.components
+// package com.example.applionscuts.ui.components
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppTopBar(
+    title: String,
+    onMenuClick: () -> Unit
+    // Ya no recibe onCartClick
+) {
+    TopAppBar(
+        title = { Text(text = title) },
+        navigationIcon = {
+            IconButton(onClick = onMenuClick) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menú"
+                )
+            }
+        }
+        // Ya no tiene el 'actions = { ... }' del carrito
+    )
+}
+
+// --- Archivo: com/example/applionscuts/ui/components/AppDrawer.kt ---
+package com.example.applionscuts.ui.components
+// package com.example.applionscuts.ui.components
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun AppDrawer(
+    onCloseDrawer: () -> Unit,
+    onNavigateToHaircuts: () -> Unit,
+    onNavigateToProducts: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onLogout: () -> Unit
+) {
+    ModalDrawerSheet {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.Face, // Puedes cambiar este ícono
+                contentDescription = "Logo",
+                modifier = Modifier.size(100.dp)
+            )
+            Text("LionsCuts", style = MaterialTheme.typography.headlineSmall)
+        }
+        Divider()
+
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Home, "Inicio") },
+            label = { Text("Inicio") },
+            selected = false,
+            onClick = onCloseDrawer
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.List, "Cortes") },
+            label = { Text("Ver Cortes") },
+            selected = false,
+            onClick = {
+                onNavigateToHaircuts()
+                onCloseDrawer()
+            }
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.ShoppingCart, "Productos") },
+            label = { Text("Ver Productos") },
+            selected = false,
+            onClick = {
+                onNavigateToProducts()
+                onCloseDrawer()
+            }
+        )
+        NavigationDrawerItem(
+            icon = { Icon(Icons.Default.Person, "Perfil") },
+            label = { Text("Mi Perfil") },
+            selected = false,
+            onClick = {
+                onNavigateToProfile()
+                onCloseDrawer()
+            }
+        )
+
+        // Ponemos un Spacer para empujar el botón de Logout al fondo
+        Spacer(modifier = Modifier.weight(1f))
+
+        NavigationDrawerItem(
+            icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, "Cerrar Sesión") },
+            label = { Text("Cerrar Sesión") },
+            selected = false,
+            onClick = {
+                onLogout()
+                onCloseDrawer()
+            },
+            modifier = Modifier.padding(bottom = 16.dp) // Un poco de espacio abajo
+        )
+
+        // El Switch de Modo Oscuro ha sido eliminado
+    }
+}
+
+
+////////////////////////////////////////////////////////////////
+// 8. Carpeta: ui/screen
+////////////////////////////////////////////////////////////////
+
+// --- Archivo: com/example/applionscuts/ui/screen/LoginScreen.kt ---
+package com.example.applionscuts.ui.screen
+// package com.example.applionscuts.ui.screen
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import com.example.applionscuts.R // <-- Importante
+import com.example.applionscuts.viewmodel.AuthViewModel
+
+@Composable
+fun LoginScreen(
+    authViewModel: AuthViewModel,
+    onLoginSuccess: () -> Unit,
+    onNavigateToRegister: () -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    val loginResult by authViewModel.isLoggedIn.observeAsState()
+    val errorMessage by authViewModel.errorMessage.observeAsState()
+
+    if (loginResult == true) {
+        onLoginSuccess()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.leon), // <-- ACTUALIZADO
+                contentDescription = "Logo LionsCuts",
+                modifier = Modifier.size(120.dp)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                "Iniciar Sesión",
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            errorMessage?.let {
+                Text(text = it, color = MaterialTheme.colorScheme.error)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Button(
+                onClick = { authViewModel.login(email, password) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Entrar")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "¿No tienes cuenta? Regístrate",
+                modifier = Modifier.clickable { onNavigateToRegister() },
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+// --- Archivo: com/example/applionscuts/ui/screen/RegisterScreen.kt ---
+package com.example.applionscuts.ui.screen
+// package com.example.applionscuts.ui.screen
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import com.example.applionscuts.R // <-- Importante
+import com.example.applionscuts.model.UserRole
+import com.example.applionscuts.viewmodel.AuthViewModel
+
+@Composable
+fun RegisterScreen(
+    authViewModel: AuthViewModel,
+    onRegisterSuccess: () -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf(UserRole.CLIENT) }
+    var barberData by remember { mutableStateOf("") }
+
+    val registrationResult by authViewModel.registrationSuccess.observeAsState()
+    val errorMessage by authViewModel.errorMessage.observeAsState()
+
+    if (registrationResult == true) {
+        onRegisterSuccess()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.leon), // <-- ACTUALIZADO
+                contentDescription = "Logo LionsCuts",
+                modifier = Modifier.size(100.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Registro", style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Confirmar Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Soy:")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = selectedRole == UserRole.CLIENT,
+                    onClick = { selectedRole = UserRole.CLIENT }
+                )
+                Text("Cliente", Modifier.padding(start = 4.dp))
+                Spacer(Modifier.width(16.dp))
+                RadioButton(
+                    selected = selectedRole == UserRole.BARBER,
+                    onClick = { selectedRole = UserRole.BARBER }
+                )
+                Text("Barbero", Modifier.padding(start = 4.dp))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (selectedRole == UserRole.BARBER) {
+                OutlinedTextField(
+                    value = barberData,
+                    onValueChange = { barberData = it },
+                    label = { Text("Especialidad o Años de Experiencia") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            errorMessage?.let {
+                Text(text = it, color = MaterialTheme.colorScheme.error)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Button(
+                onClick = {
+                    authViewModel.register(
+                        name = name,
+                        email = email,
+                        pass = password,
+                        confirmPass = confirmPassword,
+                        role = selectedRole,
+                        barberSpecificData = barberData
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Registrarse")
+            }
+        }
+    }
+}
+
+// --- Archivo: com/example/applionscuts/ui/screen/HomeScreen.kt ---
+package com.example.applionscuts.ui.screen
+// package com.example.applionscuts.ui.screen
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.applionscuts.R
+import com.example.applionscuts.ui.components.AppDrawer
+import com.example.applionscuts.ui.components.AppTopBar
+import kotlinx.coroutines.launch
+// Ya no importamos ProductViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    onNavigateToHaircuts: () -> Unit,
+    onNavigateToProducts: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onNavigateToBooking: () -> Unit,
+    onLogout: () -> Unit
+    // Ya no recibe productViewModel
+) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            AppDrawer(
+                onCloseDrawer = { scope.launch { drawerState.close() } },
+                onNavigateToHaircuts = onNavigateToHaircuts,
+                onNavigateToProducts = onNavigateToProducts,
+                onNavigateToProfile = onNavigateToProfile,
+                onLogout = onLogout
+            )
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                AppTopBar(
+                    title = "LionsCuts",
+                    onMenuClick = { scope.launch { drawerState.open() } }
+                    // Ya no pasamos onCartClick
+                )
+            }
+        ) { paddingValues ->
+            // ... (Contenido de HomeScreen)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.leons),
+                    contentDescription = "Fondo de barbería",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f))
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Agenda tu cita en", /*...*/)
+                    Text(text = "LIONS CUTS", /*...*/)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "El mejor estilo y servicio...", /*...*/)
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Button(onClick = onNavigateToBooking) {
+                        Text(text = "Agendar Cita")
+                    }
+                }
+            }
+        }
+    }
+}
+
+// --- Archivo: com/example/applionscuts/ui/screen/HaircutsScreen.kt ---
+package com.example.applionscuts.ui.screen
+// package com.example.applionscuts.ui.screen
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.applionscuts.model.Haircut
+import com.example.applionscuts.viewmodel.HaircutViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HaircutsScreen(
+    viewModel: HaircutViewModel,
+    onBack: () -> Unit
+) {
+    val haircuts by viewModel.haircuts.observeAsState(emptyList())
+
+    // Observa el corte seleccionado desde el ViewModel
+    val selectedHaircut by viewModel.selectedHaircut.observeAsState(null)
+
+    // Si el corte seleccionado no es nulo, muestra el diálogo
+    selectedHaircut?.let { haircut ->
+        HaircutDetailDialog(
+            haircut = haircut,
+            onDismiss = { viewModel.onDialogDismiss() }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Nuestros Servicios") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(haircuts) { haircut ->
+                HaircutItem(
+                    haircut = haircut,
+                    onViewMoreClicked = { viewModel.onHaircutSelected(haircut) }
+                )
+            }
+        }
+    }
+}
+
+// --- ESTA ES LA FUNCIÓN MODIFICADA ---
+@Composable
+fun HaircutItem(
+    haircut: Haircut,
+    onViewMoreClicked: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column {
+            Image(
+                painter = painterResource(id = haircut.imageResId),
+                contentDescription = haircut.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            // Esta columna interna alinea todo el texto
+            Column(
+                modifier = Modifier.padding(12.dp),
+                // Alineamos el contenido (incluido el botón) al centro
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = haircut.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    // Alinear el texto en sí (por si ocupa dos líneas)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = "$${haircut.price}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = haircut.description, // Descripción corta
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center, // Alinear el texto en sí
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // --- BOTÓN "VER MÁS" MODIFICADO ---
+                Spacer(modifier = Modifier.height(8.dp))
+                // 1. Cambiamos 'TextButton' por 'Button' (el amarillo)
+                Button(
+                    onClick = onViewMoreClicked,
+                    // 2. Ya no necesita .align() porque la Columna padre lo centra
+                ) {
+                    Text("Ver más")
+                }
+                // --- FIN DEL BOTÓN MODIFICADO ---
+            }
+        }
+    }
+}
+// --- FIN DE LA FUNCIÓN MODIFICADA ---
+
+@Composable
+fun HaircutDetailDialog(
+    haircut: Haircut,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(haircut.name, style = MaterialTheme.typography.headlineSmall) },
+        text = {
+            Column {
+                Image(
+                    painter = painterResource(id = haircut.imageResId),
+                    contentDescription = haircut.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(haircut.longDescription, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "$${haircut.price}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.End)
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Cerrar")
+            }
+        }
+    )
+}
+
+// --- Archivo: com/example/applionscuts/ui/screen/ProductsScreen.kt ---
+package com.example.applionscuts.ui.screen
+// package com.example.applionscuts.ui.screen
+
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.applionscuts.R
+import com.example.applionscuts.model.Product
+import com.example.applionscuts.viewmodel.ProductViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductsScreen(
+    viewModel: ProductViewModel,
+    onBack: () -> Unit
+) {
+    // 1. Observa la lista de productos (que ahora se actualiza)
+    val products by viewModel.products.observeAsState(emptyList())
+    // 2. Observa el ID del producto seleccionado
+    val selectedProductId by viewModel.selectedProductId.observeAsState(null)
+    // 3. Observa los mensajes de Toast
+    val toastMessage by viewModel.toastMessage.observeAsState(null)
+
+    val context = LocalContext.current
+
+    // 4. Efecto para mostrar el Toast cuando el ViewModel lo pida
+    LaunchedEffect(toastMessage) {
+        toastMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.onToastShown() // Resetea el mensaje
+        }
+    }
+
+    // 5. Encuentra el objeto Producto completo usando el ID
+    //    Esto asegura que el diálogo *siempre* muestre el stock más reciente
+    val selectedProduct = products.find { it.id == selectedProductId }
+
+    // 6. Si el producto se encuentra, muestra el diálogo
+    selectedProduct?.let { product ->
+        ProductDetailDialog(
+            product = product,
+            onDismiss = { viewModel.onDialogDismiss() },
+            onAddToCart = { viewModel.onAddToCartClicked(product.id) } // <-- Pasa la acción
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Nuestros Productos") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(products) { product ->
+                ProductItem(
+                    product = product,
+                    onViewMoreClicked = { viewModel.onProductSelected(product) }
+                )
+            }
+        }
+    }
+}
+
+// --- ITEM NO CAMBIA ---
+@Composable
+fun ProductItem(
+    product: Product,
+    onViewMoreClicked: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column {
+            Image(
+                painter = painterResource(id = product.imageResId),
+                contentDescription = product.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(
+                modifier = Modifier.padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = product.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = product.brand,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$${product.price}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = onViewMoreClicked) {
+                    Text("Ver más")
+                }
+            }
+        }
+    }
+}
+
+// --- DIÁLOGO (ALERTDIALOG) ACTUALIZADO ---
+@Composable
+fun ProductDetailDialog(
+    product: Product,
+    onDismiss: () -> Unit,
+    onAddToCart: () -> Unit // <-- Nueva acción
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(product.name, style = MaterialTheme.typography.headlineSmall) },
+        text = {
+            Column {
+                Image(
+                    painter = painterResource(id = product.imageResId),
+                    contentDescription = product.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(170.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    product.brand,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(product.longDescription, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- FILA DE STOCK Y PRECIO (NUEVO) ---
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Muestra el stock disponible
+                    Text(
+                        "Disponibles: ${product.stock}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (product.stock > 0) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
+                    )
+                    // Muestra el precio
+                    Text(
+                        "$${product.price}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+        },
+        // --- BOTONES ACTUALIZADOS ---
+        confirmButton = {
+            Column(Modifier.fillMaxWidth()) {
+                // 1. Botón de Añadir al Carrito
+                Button(
+                    onClick = onAddToCart,
+                    // Se desactiva si el stock es 0
+                    enabled = product.stock > 0,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(if (product.stock > 0) "Añadir al Carrito" else "Agotado")
+                }
+                // 2. Botón de Cerrar
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Cerrar")
+                }
+            }
+        }
+    )
+}
+
+// --- Archivo: com/example/applionscuts/ui/screen/ProfileScreen.kt ---
+package com.example.applionscuts.ui.screen
+// package com.example.applionscuts.ui.screen
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddCard
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.applionscuts.R
+import com.example.applionscuts.model.Appointment
+import com.example.applionscuts.model.PaymentMethod
+import com.example.applionscuts.model.UserProfile
+import com.example.applionscuts.viewmodel.ProfileViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileScreen(
+    viewModel: ProfileViewModel,
+    onBack: () -> Unit
+) {
+    // Observamos todos los LiveData del ViewModel
+    val userProfile by viewModel.userProfile.observeAsState()
+    val appointments by viewModel.appointments.observeAsState(emptyList())
+    val paymentMethods by viewModel.paymentMethods.observeAsState(emptyList())
+    val showDialog by viewModel.showRedeemDialog.observeAsState(false)
+
+    // --- Diálogo de Canje ---
+    if (showDialog) {
+        RedeemRewardDialog(
+            onDismiss = { viewModel.onDialogDismiss() },
+            onRedeemCut = { viewModel.onRedeemConfirmed("Corte Gratis") },
+            onRedeemProduct = { viewModel.onRedeemConfirmed("Producto Gratis") }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Mi Perfil") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        // Usamos LazyColumn para que toda la pantalla sea deslizable
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Sección 1: Cabecera del Perfil
+            item {
+                userProfile?.let {
+                    ProfileHeader(user = it)
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+
+            // Sección 2: Fidelidad
+            item {
+                userProfile?.let {
+                    FidelitySection(
+                        stars = it.fidelityStars,
+                        onRedeemClick = { viewModel.onRedeemClicked() }
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+
+            // Sección 3: Mis Citas
+            item {
+                AppointmentsSection(appointments = appointments)
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Sección 4: Métodos de Pago
+            item {
+                PaymentsSection(paymentMethods = paymentMethods)
+            }
+        }
+    }
+}
+
+// --- Componentes Reutilizables de la Pantalla ---
+
+@Composable
+fun ProfileHeader(user: UserProfile) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.leon), // Reusa tu logo
+            contentDescription = "Foto de perfil",
+            modifier = Modifier
+                .size(100.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = user.name,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = user.email,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun FidelitySection(stars: Int, onRedeemClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = "Estrellas de Fidelidad",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Las 10 estrellas
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            (1..10).forEach { star ->
+                val starColor = if (star <= stars) MaterialTheme.colorScheme.primary else Color.Gray
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = "Estrella $star",
+                    tint = starColor,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón de canje (solo activo con 10 estrellas)
+        Button(onClick = onRedeemClick, enabled = stars == 10) {
+            Text(if (stars == 10) "¡Canjear Premio!" else "Te faltan ${10 - stars} estrellas")
+        }
+    }
+}
+
+@Composable
+fun AppointmentsSection(appointments: List<Appointment>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Mis Citas",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        if (appointments.isEmpty()) {
+            Text("No tienes citas programadas.", style = MaterialTheme.typography.bodyMedium)
+        } else {
+            appointments.forEach { appointment ->
+                AppointmentItem(appointment = appointment)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun AppointmentItem(appointment: Appointment) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(appointment.service, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text("Barbero: ${appointment.barberName}", style = MaterialTheme.typography.bodyMedium)
+            Text("Fecha: ${appointment.date} a las ${appointment.time}", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+fun PaymentsSection(paymentMethods: List<PaymentMethod>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Métodos de Pago",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        paymentMethods.forEach { method ->
+            PaymentItem(method = method)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = { /* TODO: Lógica para añadir tarjeta */ },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.AddCard, contentDescription = "Añadir")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Agregar Tarjeta")
+        }
+    }
+}
+
+@Composable
+fun PaymentItem(method: PaymentMethod) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(method.brand, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text("Terminada en ${method.lastFourDigits}", style = MaterialTheme.typography.bodyMedium)
+            }
+            IconButton(onClick = { /* TODO: Lógica para eliminar */ }) {
+                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+            }
+        }
+    }
+}
+
+@Composable
+fun RedeemRewardDialog(
+    onDismiss: () -> Unit,
+    onRedeemCut: () -> Unit,
+    onRedeemProduct: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("¡FELICIDADES!", textAlign = TextAlign.Center) },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Icons.Filled.Star, contentDescription = "Premio", modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.primary)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("¡Has ganado un premio! Elige tu recompensa:", textAlign = TextAlign.Center)
+            }
+        },
+        confirmButton = {
+            Column(Modifier.fillMaxWidth()) {
+                Button(onClick = onRedeemCut, modifier = Modifier.fillMaxWidth()) {
+                    Text("Corte Gratis")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = onRedeemProduct, modifier = Modifier.fillMaxWidth()) {
+                    Text("Producto Gratis")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cerrar")
+            }
+        }
+    )
+}
+
+// --- Archivo: com/example/applionscuts/ui/screen/BookingScreen.kt ---
+package com.example.applionscuts.ui.screen
+// package com.example.applionscuts.ui.screen
+
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults // ✅ CORRECTO
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.example.applionscuts.R
+import com.example.applionscuts.model.Barber
+import com.example.applionscuts.viewmodel.BookingViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookingScreen(
+    viewModel: BookingViewModel,
+    onBack: () -> Unit
+) {
+    val barbers by viewModel.barbers.observeAsState(emptyList())
+    val dates by viewModel.availableDates.observeAsState(emptyList())
+    val times by viewModel.availableTimes.observeAsState(emptyList())
+
+    val selectedBarber by viewModel.selectedBarber.observeAsState()
+    val selectedDate by viewModel.selectedDate.observeAsState()
+    val selectedTime by viewModel.selectedTime.observeAsState()
+
+    val bookingSuccess by viewModel.bookingSuccess.observeAsState(false)
+
+    val context = LocalContext.current
+
+    LaunchedEffect(bookingSuccess) {
+        if (bookingSuccess) {
+            Toast.makeText(context, "¡Cita Agendada!", Toast.LENGTH_SHORT).show()
+            onBack()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Agendar Cita") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.booking_background),
+                contentDescription = "Fondo de barbería",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    "1. Elige tu Barbero",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                BarberSelector(
+                    barbers = barbers,
+                    selectedBarber = selectedBarber,
+                    onBarberSelected = { viewModel.onBarberSelected(it) }
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    "2. Elige el Día",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                DateSelector(
+                    dates = dates,
+                    selectedDate = selectedDate,
+                    onDateSelected = { viewModel.onDateSelected(it) }
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    "3. Elige la Hora",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TimeSelector(
+                    times = times,
+                    selectedTime = selectedTime,
+                    onTimeSelected = { viewModel.onTimeSelected(it) }
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = { viewModel.confirmBooking() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    enabled = (selectedBarber != null && selectedDate != null && selectedTime != null)
+                ) {
+                    Text("Confirmar Cita")
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BarberSelector(
+    barbers: List<Barber>,
+    selectedBarber: Barber?,
+    onBarberSelected: (Barber) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = selectedBarber?.name ?: "Selecciona un barbero",
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = Color.Gray,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.Gray,
+                focusedTrailingIconColor = Color.White,
+                unfocusedTrailingIconColor = Color.Gray
+            )
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            barbers.forEach { barber ->
+                DropdownMenuItem(
+                    text = { Text(barber.name) },
+                    onClick = {
+                        onBarberSelected(barber)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateSelector(
+    dates: List<String>,
+    selectedDate: String?,
+    onDateSelected: (String) -> Unit
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 4.dp)
+    ) {
+        items(dates) { date ->
+            val isSelected = date == selectedDate
+            SuggestionChip(
+                onClick = { onDateSelected(date) },
+                label = { Text(date) },
+                colors = SuggestionChipDefaults.suggestionChipColors( // ✅ CORREGIDO
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                    labelColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimeSelector(
+    times: List<String>,
+    selectedTime: String?,
+    onTimeSelected: (String) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.heightIn(max = 200.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(times) { time ->
+            val isSelected = time == selectedTime
+            SuggestionChip(
+                onClick = { onTimeSelected(time) },
+                label = { Text(time) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = SuggestionChipDefaults.suggestionChipColors( // ✅ CORREGIDO
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                    labelColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }
+    }
+}
+
+
+
+
+
+////////////////////////////////////////////////////////////////
+// 9. Carpeta: domain/validation
+////////////////////////////////////////////////////////////////
+
+// --- Archivo: com/example/applionscuts/domain/validation/Validators.kt ---
+package com.example.applionscuts.domain.validation
+// package com.example.applionscuts.domain.validation
+
+import android.util.Patterns
+
+class Validators {
+    fun isValidEmail(email: String): Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
+    fun isValidPassword(password: String): Boolean {
+        // La contraseña debe tener al menos 6 caracteres
+        return password.length >= 6
+    }
+}
